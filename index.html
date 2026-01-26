@@ -3,113 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI遗传病微课Demo</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- 引入 Coze Web SDK，这是实现对话功能的核心 -->
-    <script src="https://cdn.coze.com/ob-platform/web-sdk/v1/sdk.js"></script>
+    <title>AI遗传病微课演示 - 常染色体隐性遗传</title>
+    <!-- 引入ECharts图表库 -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
-        /* 基础样式，让页面看起来更规整 */
+        /* 全局样式 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
+        
         body {
-            background-color: #f0f2f5;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: #333;
             line-height: 1.6;
             padding: 20px;
+            min-height: 100vh;
         }
+        
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
+        
+        /* 头部样式 */
         header {
             background: linear-gradient(135deg, #4F46E5 0%, #7E69AB 100%);
             color: white;
-            padding: 30px 40px;
+            padding: 35px 40px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
+        
+        header::before {
+            content: "🧬";
+            position: absolute;
+            font-size: 120px;
+            opacity: 0.1;
+            top: 10px;
+            right: 40px;
+        }
+        
         header h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* 主要内容区域 */
         .main-content {
             display: flex;
             flex-wrap: wrap;
-            min-height: 600px;
+            min-height: 700px;
         }
+        
         /* 左侧微课讲解区 */
         .lesson-panel {
             flex: 1;
-            min-width: 300px;
-            padding: 30px;
-            border-right: 1px solid #eee;
+            min-width: 350px;
+            padding: 35px;
+            border-right: 1px solid #eaeaea;
+            background: #fdfdfd;
         }
+        
         .lesson-panel h2 {
             color: #4F46E5;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #f0f0f0;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .concept-box {
-            background: #f8f9ff;
-            padding: 20px;
+        
+        .lesson-panel h2::before {
+            content: "📚";
+            font-size: 1.5rem;
+        }
+        
+        /* 遗传图谱区域 */
+        .chart-panel {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            border-radius: 15px;
+            border: 2px solid #e6eeff;
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.05);
+        }
+        
+        .chart-panel h3 {
+            color: #4F46E5;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-panel h3::before {
+            content: "🧬";
+        }
+        
+        #familyTree {
+            width: 100%;
+            height: 320px;
+            margin-top: 15px;
             border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #4F46E5;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
         }
+        
+        .info-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border-left: 5px solid #4F46E5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .info-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+        
+        .info-box p {
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+        
+        .info-box strong {
+            color: #4F46E5;
+        }
+        
+        /* 概念框样式 */
+        .concept-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+            border-left: 5px solid #4F46E5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+        }
+        
+        .concept-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
+        
+        .concept-box h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .concept-box h3::before {
+            content: "⭐";
+        }
+        
         .concept-box ul {
-            margin-left: 20px;
-            margin-top: 10px;
+            margin-left: 25px;
+            margin-top: 15px;
         }
+        
+        .concept-box li {
+            margin-bottom: 12px;
+            padding-left: 5px;
+            font-size: 1.05rem;
+        }
+        
+        .genotype-example {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .genotype-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .healthy { background-color: #10B981; }
+        .carrier { background-color: #F59E0B; }
+        .affected { background-color: #EF4444; }
+        
         /* 右侧AI对话区 */
         .ai-panel {
             flex: 1;
-            min-width: 300px;
-            padding: 30px;
+            min-width: 350px;
+            padding: 35px;
             display: flex;
             flex-direction: column;
+            background: #fdfdfd;
         }
+        
         .ai-panel h2 {
             color: #10B981;
-            margin-bottom: 20px;
-        }
-        /* Coze对话容器，必须有固定的高度 */
-        #coze-chat {
-            flex: 1;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.05);
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 0.9rem;
-            border-top: 1px solid #eee;
-        }
-        .chart-panel {
             margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #f0f0f0;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ai-panel h2::before {
+            content: "🤖";
+            font-size: 1.5rem;
+        }
+        
+        /* 聊天容器样式 */
+        #chat-container {
+            flex: 1;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            overflow-y: auto;
             padding: 20px;
+            margin-bottom: 25px;
             background: #f9fafb;
-            border-radius: 10px;
+            min-height: 420px;
+            max-height: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* 消息样式 */
+        .message {
+            max-width: 85%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            line-height: 1.5;
+            font-size: 1.05rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, #4F46E5 0%, #7E69AB 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+            color: #1f2937;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
             border: 1px solid #e5e7eb;
         }
-        .info-box {
+        
+        .message strong {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        
+        /* 输入区域样式 */
+        .input-area {
+            display: flex;
+            gap: 12px;
+            margin-top: auto;
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        #user-input:focus {
+            outline: none;
+            border-color: #4F46E5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        #user-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        #send-button {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #10B981 0%, #0da271 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        
+        #send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
+        }
+        
+        #send-button:active {
+            transform: translateY(0);
+        }
+        
+        #send-button:disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* API信息提示 */
+        .api-info {
             margin-top: 20px;
             padding: 15px;
-            background: white;
-            border-radius: 8px;
-            border-left: 4px solid #4F46E5;
-            font-size: 0.95em;
+            background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+            border-radius: 12px;
+            border-left: 4px solid #F59E0B;
+            font-size: 0.9rem;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .api-info::before {
+            content: "💡";
+            font-size: 1.2rem;
+        }
+        
+        /* 页脚样式 */
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #666;
+            font-size: 0.95rem;
+            border-top: 1px solid #eee;
+            background: #f9fafb;
+        }
+        
+        footer p {
+            margin-bottom: 5px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1100px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .lesson-panel, .ai-panel {
+                border-right: none;
+                border-bottom: 1px solid #eaeaea;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            header p {
+                font-size: 1rem;
+            }
+            
+            .lesson-panel, .ai-panel {
+                padding: 25px;
+            }
+            
+            #familyTree {
+                height: 280px;
+            }
         }
     </style>
 </head>
@@ -117,19 +412,19 @@
     <div class="container">
         <header>
             <h1>🧬 基因遗传病AI微课演示</h1>
-            <p>探索常染色体隐性遗传的奥秘 | 与AI导师互动学习</p>
+            <p>探索常染色体隐性遗传的奥秘 | 交互式图谱 + AI导师答疑</p>
         </header>
 
         <div class="main-content">
             <section class="lesson-panel">
-                <h2>📚 核心概念：常染色体隐性遗传</h2>
-                <p>本微课将帮助你理解一类重要的遗传病传递规律。</p>
+                <h2>核心概念：常染色体隐性遗传</h2>
+                <p style="margin-bottom: 20px; font-size: 1.1rem; color: #555;">本微课将帮助你理解一类重要的遗传病传递规律，结合交互图谱和AI导师，深入学习遗传学原理。</p>
                 
                 <div class="chart-panel">
-                    <h3>🧬 遗传系谱图模拟</h3>
+                    <h3>遗传系谱图模拟</h3>
                     <p>点击图中的家庭成员，查看其遗传信息：</p>
-                    <!-- 图表将在这里渲染 -->
-                    <div id="familyTree" style="width: 100%; height: 280px; margin-top: 15px;"></div>
+                    <!-- ECharts图表容器 -->
+                    <div id="familyTree"></div>
                     <!-- 信息显示区域 -->
                     <div id="memberInfo" class="info-box">
                         <p><strong>当前选中：</strong> <span id="selectedName">暂无</span></p>
@@ -150,103 +445,196 @@
                 <div class="concept-box">
                     <h3>经典遗传规律</h3>
                     <p>当<strong>两位携带者（Aa）</strong>结婚时，后代的基因型概率分布如下：</p>
-                    <ul>
-                        <li><span style="color:#10B981;">健康 (AA)</span>：概率 25%</li>
-                        <li><span style="color:#F59E0B;">健康携带者 (Aa)</span>：概率 50%</li>
-                        <li><span style="color:#EF4444;">患病 (aa)</span>：概率 25%</li>
-                    </ul>
-                    <p style="margin-top:15px; font-style:italic;">👉 这就是“父母健康，孩子却可能患病”的遗传学原理。</p>
+                    
+                    <div class="genotype-example">
+                        <div class="genotype-color healthy"></div>
+                        <span><strong>健康 (AA)</strong>：概率 25%</span>
+                    </div>
+                    
+                    <div class="genotype-example">
+                        <div class="genotype-color carrier"></div>
+                        <span><strong>健康携带者 (Aa)</strong>：概率 50%</span>
+                    </div>
+                    
+                    <div class="genotype-example">
+                        <div class="genotype-color affected"></div>
+                        <span><strong>患病 (aa)</strong>：概率 25%</span>
+                    </div>
+                    
+                    <p style="margin-top:20px; font-style:italic; color: #4F46E5;">👉 这就是"父母健康，孩子却可能患病"的遗传学原理。</p>
                 </div>
 
                 <div class="concept-box">
                     <h3>学习目标</h3>
                     <p>理解上述规律后，你可以尝试向右侧的AI导师提问，例如：</p>
-                    <p>“如果我是携带者，我的孩子一定会患病吗？”<br>
-                    “近亲结婚为什么会提高遗传病风险？”</p>
+                    <ul>
+                        <li>"如果我是携带者，我的孩子一定会患病吗？"</li>
+                        <li>"近亲结婚为什么会提高遗传病风险？"</li>
+                        <li>"白化病的遗传方式是什么？"</li>
+                    </ul>
                 </div>
             </section>
 
             <section class="ai-panel">
                 <h2>🤖 对话AI导师</h2>
-                <p>我是你的专属AI生物老师“基因博士”。关于上面的概念，有任何疑问都可以问我：</p>
-                <!-- Coze SDK 将把聊天界面渲染在这个div中 -->
-                <div id="coze-chat"></div>
+                <p>我是你的专属AI生物老师<strong>“基因博士”</strong>。关于遗传病的任何疑问，点击下方按钮即可与我进行完整对话：</p>
+                
+                <!-- 核心：跳转按钮与说明 -->
+                <div class="chat-redirect-box">
+                    <a href="https://www.coze.cn/store/agent/7599549366093430836" 
+                    target="_blank" 
+                    class="coze-chat-button"
+                    onclick="trackAIClick()">
+                        🧬 点击这里，开启AI答疑 →
+                    </a>
+                    <p class="redirect-tip">（将在新标签页打开“遗传病小导师”专属对话界面）</p>
+                    <div class="feature-list">
+                        <p><strong>💡 功能完整，您可以：</strong></p>
+                        <ul>
+                            <li>向“基因博士”自由提问</li>
+                            <li>查看完整的对话历史</li>
+                            <li>体验流畅的AI交互</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 本地互动示例（保留趣味性） -->
+                <div class="local-demo">
+                    <h4>🧪 本地互动思考题</h4>
+                    <p><strong>问题：</strong>如果父母都是携带者 (Aa)，他们生下健康孩子 (AA) 的概率是多少？</p>
+                    <div class="answer-area">
+                        <button onclick="showAnswer(this)">点击查看答案与解析</button>
+                        <p class="answer" style="display: none; margin-top: 10px; padding: 10px; background: #e0f2fe; border-radius: 5px;">
+                            <strong>答案：25%</strong><br>
+                            <strong>解析：</strong>根据孟德尔遗传规律，Aa x Aa 的后代基因型比例为：AA(25%)，Aa(50%)，aa(25%)。其中，AA 基因型表现为健康且非携带者。
+                        </p>
+                    </div>
+                </div>
             </section>
+
+            <script>
+                // 简单的本地互动函数
+                function showAnswer(buttonElement) {
+                    const answerEl = buttonElement.nextElementSibling;
+                    answerEl.style.display = answerEl.style.display === 'block' ? 'none' : 'block';
+                    buttonElement.textContent = answerEl.style.display === 'block' ? '收起解析' : '点击查看答案与解析';
+                }
+                
+                // 可选的点击统计（不影响功能）
+                function trackAIClick() {
+                    console.log('用户点击了AI对话按钮，前往Coze商店页。');
+                    // 这里可以添加简单的访问统计，例如：
+                    // if (typeof gtag !== 'undefined') gtag('event', 'click_ai_button');
+                }
+            </script>
+
+            <style>
+                /* 为跳转区域添加新样式 */
+                .chat-redirect-box {
+                    text-align: center;
+                    margin: 30px 0;
+                    padding: 30px;
+                    background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+                    border-radius: 16px;
+                    border: 2px solid #bae6fd;
+                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+                }
+                
+                .coze-chat-button {
+                    display: inline-block;
+                    background: linear-gradient(135deg, #10B981 0%, #0da271 100%);
+                    color: white;
+                    padding: 18px 40px;
+                    font-size: 1.2rem;
+                    border-radius: 50px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+                    transition: all 0.3s ease;
+                    margin-bottom: 15px;
+                }
+                
+                .coze-chat-button:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 12px 25px rgba(16, 185, 129, 0.4);
+                    background: linear-gradient(135deg, #0da271 0%, #0a8f62 100%);
+                }
+                
+                .redirect-tip {
+                    color: #666;
+                    font-size: 0.95rem;
+                    margin-bottom: 20px;
+                }
+                
+                .feature-list {
+                    text-align: left;
+                    display: inline-block;
+                    background: white;
+                    padding: 15px 25px;
+                    border-radius: 10px;
+                    border-left: 4px solid #10B981;
+                    margin-top: 15px;
+                }
+                
+                .feature-list ul {
+                    margin-left: 20px;
+                    margin-top: 8px;
+                    color: #555;
+                }
+                
+                .feature-list li {
+                    margin-bottom: 5px;
+                }
+                
+                .local-demo {
+                    margin-top: 30px;
+                    padding: 20px;
+                    background-color: #f8fafc;
+                    border-radius: 12px;
+                    border: 1px solid #e2e8f0;
+                }
+                
+                .local-demo h4 {
+                    color: #4F46E5;
+                    margin-bottom: 15px;
+                }
+                
+                .local-demo button {
+                    background-color: #4F46E5;
+                    color: white;
+                    padding: 10px 20px;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    transition: background-color 0.2s;
+                }
+                
+                .local-demo button:hover {
+                    background-color: #4338ca;
+                }
+            </style>
         </div>
 
         <footer>
-            <p>计算机设计大赛 · AI微课与教学辅助赛道 Demo | 本页面仅用于学习演示</p>
+            <p>计算机设计大赛 · AI微课与教学辅助赛道 Demo</p>
+            <p>本页面仅用于学习演示 | 交互式遗传学教学工具</p>
         </footer>
     </div>
 
     <script>
-    // ========== 配置区：此处必须修改 ==========
-    // 替换为你从上一步获取的完整聊天页面URL
-    const chatPageUrl = 'https://www.coze.cn/store/agent/7599549366093430836?bot_id=true';
-    // ==========================================
-
-    // 获取聊天容器
-    const chatContainer = document.getElementById('coze-chat');
-
-    function loadChatFrame() {
-        if (!chatContainer) {
-            console.error('错误：未找到聊天容器 #coze-chat');
-            return;
-        }
-
-        if (!chatPageUrl || chatPageUrl.includes('...')) {
-            chatContainer.innerHTML = `
-                <div style="color: #EF4444; padding: 30px; text-align: center; background: #FEF2F2; border-radius: 8px;">
-                    <p><strong>步骤未完成</strong></p>
-                    <p>请先获取你的AI聊天链接，然后更新 <code>chatPageUrl</code> 变量。</p>
-                    <p>操作：在Coze平台，将你的Bot <strong>“发布到网页”</strong>，即可获得链接。</p>
-                </div>`;
-            return;
-        }
-
-        console.log('正在加载AI聊天页面：', chatPageUrl);
-
-        // 使用iframe嵌入Coze官方聊天页
-        const iframe = document.createElement('iframe');
-        iframe.src = chatPageUrl;
-        iframe.id = 'coze-chat-frame';
-
-        // 设置样式：确保iframe无缝融入
-        iframe.style.cssText = `
-            width: 100%;
-            height: 100%;
-            min-height: 500px;
-            border: none;
-            border-radius: 12px;
-            display: block;
-        `;
-
-        // 清空容器并加载
-        chatContainer.innerHTML = '';
-        chatContainer.appendChild(iframe);
-
-        // 可选：添加加载状态提示
-        const loadingMsg = document.createElement('p');
-        loadingMsg.textContent = '正在加载AI导师...';
-        loadingMsg.style.cssText = 'text-align: center; color: #6B7280; padding: 20px;';
-        chatContainer.appendChild(loadingMsg);
-
-        iframe.onload = function() {
-            console.log('✅ AI聊天页面加载成功！');
-            loadingMsg.remove();
-        };
-
-        iframe.onerror = function() {
-            console.error('❌ 聊天页面加载失败');
-            loadingMsg.textContent = '加载失败，请检查链接或网络。';
-            loadingMsg.style.color = '#EF4444';
-        };
-    }
+    // ========== API配置区：必须修改！==========
+    // 请替换以下值为你自己的Coze API配置
+    const API_KEY = 'pat_Y8l3wUXFysiTJjMejTDaXibPhdCXO9MWrqwFmavr6jnBtAIb1icHp8RqhWnii5Rh'; // 替换：你的Coze个人访问令牌
+    const BOT_ID = '7599549366093430836'; // 你的Bot ID
+    const CONVERSATION_ID = 'genetics_demo_conversation'; // 自定义会话ID
+    const USER_ID = 'demo_student_001'; // 自定义用户ID
+    // =========================================
 
     // ========== 交互式遗传图谱代码 ==========
     document.addEventListener('DOMContentLoaded', function() {
         const chartDom = document.getElementById('familyTree');
-        if (!chartDom) return; // 如果容器不存在则退出
+        if (!chartDom) return;
 
         const myChart = echarts.init(chartDom);
 
@@ -271,23 +659,33 @@
 
         // 3. 将数据转换为ECharts节点格式，并根据基因型设置颜色和大小
         const nodes = familyData.map(person => {
-            let nodeStyle = { color: '#10B981' }; // 默认绿色-健康
-            let symbolSize = 40;
+            let nodeStyle = { 
+                color: '#10B981',
+                borderColor: '#0da271',
+                borderWidth: 2
+            };
+            let symbolSize = 50;
 
             if (person.genotype === 'Aa') {
-                nodeStyle.color = '#FBBF24'; // 黄色-携带者
-                symbolSize = 44;
+                nodeStyle.color = '#F59E0B';
+                nodeStyle.borderColor = '#d97706';
+                symbolSize = 55;
             } else if (person.genotype === 'aa') {
-                nodeStyle.color = '#EF4444'; // 红色-患病
-                symbolSize = 48;
+                nodeStyle.color = '#EF4444';
+                nodeStyle.borderColor = '#dc2626';
+                symbolSize = 60;
             }
 
             return {
                 id: person.id,
-                name: `${person.name}\n(${person.genotype})`, // 节点显示的名称
+                name: `${person.name}\n(${person.genotype})`,
                 symbolSize: symbolSize,
                 itemStyle: nodeStyle,
-                // 将原始数据挂载到节点上，便于点击时获取
+                label: {
+                    color: '#fff',
+                    fontWeight: 'bold',
+                    fontSize: 14
+                },
                 personData: person
             };
         });
@@ -295,43 +693,66 @@
         // 4. ECharts配置项
         const option = {
             title: {
-                text: '携带者父母 (Aa x Aa) 的家庭',
-                subtext: '点击任一成员查看详情',
+                text: '携带者父母 (Aa × Aa) 的家庭遗传系谱',
+                subtext: '点击任一成员查看遗传信息',
                 left: 'center',
-                textStyle: { fontSize: 14 }
+                textStyle: { 
+                    fontSize: 16,
+                    color: '#4F46E5'
+                },
+                subtextStyle: {
+                    fontSize: 13,
+                    color: '#6b7280'
+                }
             },
-            tooltip: { // 鼠标悬停提示框
+            tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderColor: '#4F46E5',
+                borderWidth: 1,
+                textStyle: { color: '#333' },
                 formatter: function(params) {
                     const p = params.data.personData;
-                    return `<strong>${p.name}</strong><br/>基因型：${p.genotype}<br/>状态：${p.description}`;
+                    return `
+                    <div style="padding: 5px;">
+                        <strong style="color: #4F46E5;">${p.name}</strong><br/>
+                        基因型：<strong>${p.genotype}</strong><br/>
+                        状态：${p.description}
+                    </div>`;
                 }
             },
             series: [{
                 type: 'graph',
-                layout: 'force', // 使用力引导布局，自动排列
+                layout: 'force',
                 data: nodes,
                 links: links,
-                roam: true, // 允许鼠标缩放和拖动
-                label: { // 节点标签
+                roam: true,
+                label: {
                     show: true,
                     position: 'inside',
-                    formatter: '{b}', // 显示节点的 name 属性
+                    formatter: '{b}',
                     color: '#fff',
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    fontSize: 12
                 },
-                lineStyle: { // 连线样式
-                    width: 2,
-                    color: '#ccc',
-                    curveness: 0.1 // 轻微的曲线
+                lineStyle: {
+                    width: 3,
+                    color: '#9ca3af',
+                    curveness: 0.2
                 },
-                force: { // 力引导布局配置
-                    repulsion: 200, // 节点间斥力
-                    edgeLength: 100  // 连线长度
+                force: {
+                    repulsion: 250,
+                    edgeLength: 120,
+                    gravity: 0.1
                 },
-                emphasis: { // 高亮状态
+                emphasis: {
                     focus: 'adjacency',
                     lineStyle: {
-                        width: 3
+                        width: 4,
+                        color: '#4F46E5'
+                    },
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.3)'
                     }
                 }
             }]
@@ -344,25 +765,171 @@
         myChart.on('click', function(params) {
             if (params.dataType === 'node') {
                 const p = params.data.personData;
-                // 更新右侧信息区域
                 document.getElementById('selectedName').textContent = p.name;
                 document.getElementById('selectedGenotype').textContent = p.genotype;
                 document.getElementById('selectedDesc').textContent = p.description;
-
-                // 【可选】高级功能：点击时向AI提问
-                // 可以在这里触发一个函数，自动向右侧的AI助手发送一条消息
-                // 例如：sendQuestionToAI(`请解释一下基因型 ${p.genotype} 的含义。`);
+                
+                // 高亮显示当前选中的节点
+                myChart.dispatchAction({
+                    type: 'highlight',
+                    seriesIndex: 0,
+                    dataIndex: params.dataIndex
+                });
             }
         });
 
-        // 7. 当浏览器窗口大小改变时，重置图表大小
+        // 7. 响应浏览器窗口大小变化
         window.addEventListener('resize', function() {
             myChart.resize();
         });
+        
+        // 8. 初始化API聊天功能
+        initChat();
     });
 
-    // 页面加载后执行
-    document.addEventListener('DOMContentLoaded', loadChatFrame);
-</script>
+    // ========== API聊天功能代码 ==========
+    function initChat() {
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        
+        // 按Enter键发送消息
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // 初始焦点在输入框
+        userInput.focus();
+    }
+    
+    // 添加消息到聊天容器
+    function addMessage(content, isUser = false) {
+        const container = document.getElementById('chat-container');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = isUser ? 'message user-message' : 'message bot-message';
+        messageDiv.innerHTML = `<strong>${isUser ? '你：' : '基因博士：'}</strong> ${content}`;
+        container.appendChild(messageDiv);
+        container.scrollTop = container.scrollHeight; // 滚动到底部
+    }
+    
+    // 发送消息到Coze API
+    async function sendMessage() {
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const userText = userInput.value.trim();
+        
+        if (!userText) {
+            userInput.focus();
+            return;
+        }
+        
+        // 1. 显示用户消息
+        addMessage(userText, true);
+        userInput.value = '';
+        userInput.disabled = true;
+        sendButton.disabled = true;
+        sendButton.textContent = '发送中...';
+        
+        // 2. 显示"思考中"提示
+        const thinkingId = 'thinking-' + Date.now();
+        const container = document.getElementById('chat-container');
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.id = thinkingId;
+        thinkingDiv.className = 'message bot-message';
+        thinkingDiv.innerHTML = '<strong>基因博士：</strong> <em style="color: #6b7280;">正在思考...</em>';
+        container.appendChild(thinkingDiv);
+        container.scrollTop = container.scrollHeight;
+        
+        try {
+            // 3. 准备API请求
+            const response = await fetch('https://api.coze.cn/v1/chat', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${API_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    bot_id: BOT_ID,
+                    conversation_id: CONVERSATION_ID,
+                    user_id: USER_ID,
+                    query: userText,
+                    auto_save_history: true,
+                    stream: false
+                })
+            });
+            
+            // 4. 处理响应
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API请求失败 (${response.status}): ${errorText}`);
+            }
+            
+            const data = await response.json();
+            const answer = data.messages?.[0]?.content || '抱歉，我没有理解这个问题。请换一种方式提问。';
+            
+            // 5. 移除"思考中"，显示AI回复
+            document.getElementById(thinkingId).remove();
+            addMessage(answer);
+            
+        } catch (error) {
+            console.error('调用Coze API出错:', error);
+            document.getElementById(thinkingId).remove();
+            
+            // 显示友好的错误信息
+            let errorMessage = '抱歉，暂时无法连接到AI服务。请稍后再试。';
+            if (error.message.includes('401')) {
+                errorMessage = 'API密钥错误或已过期，请检查配置。';
+            } else if (error.message.includes('404')) {
+                errorMessage = '未找到智能体，请检查Bot ID配置。';
+            } else if (error.message.includes('network') || error.message.includes('Failed to fetch')) {
+                errorMessage = '网络连接失败，请检查网络设置后重试。';
+            } else if (error.message.includes('429')) {
+                errorMessage = '请求过于频繁，请稍后重试。';
+            }
+            
+            addMessage(`<span style="color: #dc2626;">${errorMessage}</span>`);
+        } finally {
+            // 6. 恢复输入框和按钮状态
+            userInput.disabled = false;
+            sendButton.disabled = false;
+            sendButton.textContent = '发送';
+            userInput.focus();
+        }
+    }
+    
+    // 页面加载完成后执行的初始化
+    window.addEventListener('DOMContentLoaded', function() {
+        console.log('AI遗传病微课演示页面加载完成');
+        console.log('配置信息:', { BOT_ID, CONVERSATION_ID, USER_ID });
+        
+        // 添加一个示例问题按钮（可选功能）
+        const chatContainer = document.getElementById('chat-container');
+        const exampleBtn = document.createElement('button');
+        exampleBtn.textContent = '试试问："什么是携带者？"';
+        exampleBtn.style.cssText = `
+            align-self: center;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            color: #4F46E5;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        `;
+        exampleBtn.onmouseover = () => exampleBtn.style.background = '#e5e7eb';
+        exampleBtn.onmouseout = () => exampleBtn.style.background = '#f3f4f6';
+        exampleBtn.onclick = () => {
+            document.getElementById('user-input').value = '什么是携带者？';
+            sendMessage();
+        };
+        
+        // 可以将示例按钮添加到页面，这里暂时注释掉
+        // chatContainer.parentNode.insertBefore(exampleBtn, chatContainer.nextSibling);
+    });
+    </script>
 </body>
 </html>
