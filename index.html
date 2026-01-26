@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI遗传病微课Demo</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入 Coze Web SDK，这是实现对话功能的核心 -->
+    <script src="https://cdn.coze.com/ob-platform/web-sdk/v1/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        /* 基础样式，让页面看起来更规整 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #4F46E5 0%, #7E69AB 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            min-height: 600px;
+        }
+        /* 左侧微课讲解区 */
+        .lesson-panel {
+            flex: 1;
+            min-width: 300px;
+            padding: 30px;
+            border-right: 1px solid #eee;
+        }
+        .lesson-panel h2 {
+            color: #4F46E5;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .concept-box {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #4F46E5;
+        }
+        .concept-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        /* 右侧AI对话区 */
+        .ai-panel {
+            flex: 1;
+            min-width: 300px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        .ai-panel h2 {
+            color: #10B981;
+            margin-bottom: 20px;
+        }
+        /* Coze对话容器，必须有固定的高度 */
+        #coze-chat {
+            flex: 1;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.05);
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        .chart-panel {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+        .info-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #4F46E5;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧬 基因遗传病AI微课演示</h1>
+            <p>探索常染色体隐性遗传的奥秘 | 与AI导师互动学习</p>
+        </header>
+
+        <div class="main-content">
+            <section class="lesson-panel">
+                <h2>📚 核心概念：常染色体隐性遗传</h2>
+                <p>本微课将帮助你理解一类重要的遗传病传递规律。</p>
+                
+                <div class="chart-panel">
+                    <h3>🧬 遗传系谱图模拟</h3>
+                    <p>点击图中的家庭成员，查看其遗传信息：</p>
+                    <!-- 图表将在这里渲染 -->
+                    <div id="familyTree" style="width: 100%; height: 280px; margin-top: 15px;"></div>
+                    <!-- 信息显示区域 -->
+                    <div id="memberInfo" class="info-box">
+                        <p><strong>当前选中：</strong> <span id="selectedName">暂无</span></p>
+                        <p><strong>基因型：</strong> <span id="selectedGenotype">-</span></p>
+                        <p><strong>说明：</strong> <span id="selectedDesc">请点击上方图谱中的成员</span></p>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <h3>核心特点</h3>
+                    <ul>
+                        <li><strong>基因位置</strong>：致病基因位于<strong>常染色体</strong>（非性染色体）上。</li>
+                        <li><strong>发病条件</strong>：只有当个体的一对等位基因都是<strong>隐性致病基因（aa）</strong>时才会患病。</li>
+                        <li><strong>关键角色</strong>：携带一个隐性致病基因的<strong>杂合子（Aa）</strong>称为<strong>携带者</strong>，他们本身健康，但可能将致病基因传给后代。</li>
+                    </ul>
+                </div>
+
+                <div class="concept-box">
+                    <h3>经典遗传规律</h3>
+                    <p>当<strong>两位携带者（Aa）</strong>结婚时，后代的基因型概率分布如下：</p>
+                    <ul>
+                        <li><span style="color:#10B981;">健康 (AA)</span>：概率 25%</li>
+                        <li><span style="color:#F59E0B;">健康携带者 (Aa)</span>：概率 50%</li>
+                        <li><span style="color:#EF4444;">患病 (aa)</span>：概率 25%</li>
+                    </ul>
+                    <p style="margin-top:15px; font-style:italic;">👉 这就是“父母健康，孩子却可能患病”的遗传学原理。</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>学习目标</h3>
+                    <p>理解上述规律后，你可以尝试向右侧的AI导师提问，例如：</p>
+                    <p>“如果我是携带者，我的孩子一定会患病吗？”<br>
+                    “近亲结婚为什么会提高遗传病风险？”</p>
+                </div>
+            </section>
+
+            <section class="ai-panel">
+                <h2>🤖 对话AI导师</h2>
+                <p>我是你的专属AI生物老师“基因博士”。关于上面的概念，有任何疑问都可以问我：</p>
+                <!-- Coze SDK 将把聊天界面渲染在这个div中 -->
+                <div id="coze-chat"></div>
+            </section>
+        </div>
+
+        <footer>
+            <p>计算机设计大赛 · AI微课与教学辅助赛道 Demo | 本页面仅用于学习演示</p>
+        </footer>
+    </div>
+
+    <script>
+    // ========== 配置区：此处必须修改 ==========
+    // 替换为你从上一步获取的完整聊天页面URL
+    const chatPageUrl = 'https://www.coze.cn/store/agent/7599549366093430836?bot_id=true';
+    // ==========================================
+
+    // 获取聊天容器
+    const chatContainer = document.getElementById('coze-chat');
+
+    function loadChatFrame() {
+        if (!chatContainer) {
+            console.error('错误：未找到聊天容器 #coze-chat');
+            return;
+        }
+
+        if (!chatPageUrl || chatPageUrl.includes('...')) {
+            chatContainer.innerHTML = `
+                <div style="color: #EF4444; padding: 30px; text-align: center; background: #FEF2F2; border-radius: 8px;">
+                    <p><strong>步骤未完成</strong></p>
+                    <p>请先获取你的AI聊天链接，然后更新 <code>chatPageUrl</code> 变量。</p>
+                    <p>操作：在Coze平台，将你的Bot <strong>“发布到网页”</strong>，即可获得链接。</p>
+                </div>`;
+            return;
+        }
+
+        console.log('正在加载AI聊天页面：', chatPageUrl);
+
+        // 使用iframe嵌入Coze官方聊天页
+        const iframe = document.createElement('iframe');
+        iframe.src = chatPageUrl;
+        iframe.id = 'coze-chat-frame';
+
+        // 设置样式：确保iframe无缝融入
+        iframe.style.cssText = `
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            border: none;
+            border-radius: 12px;
+            display: block;
+        `;
+
+        // 清空容器并加载
+        chatContainer.innerHTML = '';
+        chatContainer.appendChild(iframe);
+
+        // 可选：添加加载状态提示
+        const loadingMsg = document.createElement('p');
+        loadingMsg.textContent = '正在加载AI导师...';
+        loadingMsg.style.cssText = 'text-align: center; color: #6B7280; padding: 20px;';
+        chatContainer.appendChild(loadingMsg);
+
+        iframe.onload = function() {
+            console.log('✅ AI聊天页面加载成功！');
+            loadingMsg.remove();
+        };
+
+        iframe.onerror = function() {
+            console.error('❌ 聊天页面加载失败');
+            loadingMsg.textContent = '加载失败，请检查链接或网络。';
+            loadingMsg.style.color = '#EF4444';
+        };
+    }
+
+    // ========== 交互式遗传图谱代码 ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        const chartDom = document.getElementById('familyTree');
+        if (!chartDom) return; // 如果容器不存在则退出
+
+        const myChart = echarts.init(chartDom);
+
+        // 1. 模拟一个家庭的遗传数据
+        const familyData = [
+            { id: 'grandpa', name: '祖父', gender: 'male', genotype: 'AA', description: '健康，非携带者' },
+            { id: 'grandma', name: '祖母', gender: 'female', genotype: 'Aa', description: '健康，携带者' },
+            { id: 'father', name: '父亲', gender: 'male', genotype: 'Aa', description: '健康，携带者' },
+            { id: 'mother', name: '母亲', gender: 'female', genotype: 'Aa', description: '健康，携带者' },
+            { id: 'child', name: '孩子', gender: 'male', genotype: 'aa', description: '患病（如白化病）' }
+        ];
+
+        // 2. 定义家庭成员关系（连线）
+        const links = [
+            { source: 'grandpa', target: 'father' },
+            { source: 'grandma', target: 'father' },
+            { source: 'grandpa', target: 'mother' },
+            { source: 'grandma', target: 'mother' },
+            { source: 'father', target: 'child' },
+            { source: 'mother', target: 'child' }
+        ];
+
+        // 3. 将数据转换为ECharts节点格式，并根据基因型设置颜色和大小
+        const nodes = familyData.map(person => {
+            let nodeStyle = { color: '#10B981' }; // 默认绿色-健康
+            let symbolSize = 40;
+
+            if (person.genotype === 'Aa') {
+                nodeStyle.color = '#FBBF24'; // 黄色-携带者
+                symbolSize = 44;
+            } else if (person.genotype === 'aa') {
+                nodeStyle.color = '#EF4444'; // 红色-患病
+                symbolSize = 48;
+            }
+
+            return {
+                id: person.id,
+                name: `${person.name}\n(${person.genotype})`, // 节点显示的名称
+                symbolSize: symbolSize,
+                itemStyle: nodeStyle,
+                // 将原始数据挂载到节点上，便于点击时获取
+                personData: person
+            };
+        });
+
+        // 4. ECharts配置项
+        const option = {
+            title: {
+                text: '携带者父母 (Aa x Aa) 的家庭',
+                subtext: '点击任一成员查看详情',
+                left: 'center',
+                textStyle: { fontSize: 14 }
+            },
+            tooltip: { // 鼠标悬停提示框
+                formatter: function(params) {
+                    const p = params.data.personData;
+                    return `<strong>${p.name}</strong><br/>基因型：${p.genotype}<br/>状态：${p.description}`;
+                }
+            },
+            series: [{
+                type: 'graph',
+                layout: 'force', // 使用力引导布局，自动排列
+                data: nodes,
+                links: links,
+                roam: true, // 允许鼠标缩放和拖动
+                label: { // 节点标签
+                    show: true,
+                    position: 'inside',
+                    formatter: '{b}', // 显示节点的 name 属性
+                    color: '#fff',
+                    fontWeight: 'bold'
+                },
+                lineStyle: { // 连线样式
+                    width: 2,
+                    color: '#ccc',
+                    curveness: 0.1 // 轻微的曲线
+                },
+                force: { // 力引导布局配置
+                    repulsion: 200, // 节点间斥力
+                    edgeLength: 100  // 连线长度
+                },
+                emphasis: { // 高亮状态
+                    focus: 'adjacency',
+                    lineStyle: {
+                        width: 3
+                    }
+                }
+            }]
+        };
+
+        // 5. 应用配置并绘制图表
+        myChart.setOption(option);
+
+        // 6. 监听图表点击事件，更新下方信息框
+        myChart.on('click', function(params) {
+            if (params.dataType === 'node') {
+                const p = params.data.personData;
+                // 更新右侧信息区域
+                document.getElementById('selectedName').textContent = p.name;
+                document.getElementById('selectedGenotype').textContent = p.genotype;
+                document.getElementById('selectedDesc').textContent = p.description;
+
+                // 【可选】高级功能：点击时向AI提问
+                // 可以在这里触发一个函数，自动向右侧的AI助手发送一条消息
+                // 例如：sendQuestionToAI(`请解释一下基因型 ${p.genotype} 的含义。`);
+            }
+        });
+
+        // 7. 当浏览器窗口大小改变时，重置图表大小
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    });
+
+    // 页面加载后执行
+    document.addEventListener('DOMContentLoaded', loadChatFrame);
+</script>
+</body>
+</html>
