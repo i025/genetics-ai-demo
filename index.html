@@ -6,6 +6,8 @@
     <title>AI遗传病微课演示 - 常染色体隐性遗传</title>
     <!-- 引入ECharts图表库 -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 引入Coze Web SDK -->
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
     <style>
         /* 全局样式 */
         * {
@@ -236,131 +238,97 @@
             font-size: 1.5rem;
         }
         
-        /* 聊天容器样式 */
-        #chat-container {
+        /* Coze聊天容器样式 */
+        .coze-chat-container {
             flex: 1;
-            border: 2px solid #e5e7eb;
             border-radius: 15px;
-            overflow-y: auto;
-            padding: 20px;
+            overflow: hidden;
             margin-bottom: 25px;
             background: #f9fafb;
-            min-height: 420px;
+            min-height: 450px;
             max-height: 500px;
+            border: 2px solid #e5e7eb;
+            position: relative;
+        }
+        
+        #coze-chat-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        
+        .chat-placeholder {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-        }
-        
-        /* 消息样式 */
-        .message {
-            max-width: 85%;
-            padding: 15px 20px;
-            border-radius: 18px;
-            line-height: 1.5;
-            font-size: 1.05rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .user-message {
-            background: linear-gradient(135deg, #4F46E5 0%, #7E69AB 100%);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 5px;
-        }
-        
-        .bot-message {
-            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
-            color: #1f2937;
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .message strong {
-            font-weight: 600;
-            margin-right: 5px;
-        }
-        
-        /* 输入区域样式 */
-        .input-area {
-            display: flex;
-            gap: 12px;
-            margin-top: auto;
-        }
-        
-        #user-input {
-            flex: 1;
-            padding: 16px 20px;
-            border: 2px solid #d1d5db;
-            border-radius: 12px;
-            font-size: 1.05rem;
-            transition: all 0.3s ease;
-            background: white;
-        }
-        
-        #user-input:focus {
-            outline: none;
-            border-color: #4F46E5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-        
-        #user-input::placeholder {
-            color: #9ca3af;
-        }
-        
-        #send-button {
-            padding: 16px 32px;
-            background: linear-gradient(135deg, #10B981 0%, #0da271 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1.05rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-        }
-        
-        #send-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
-        }
-        
-        #send-button:active {
-            transform: translateY(0);
-        }
-        
-        #send-button:disabled {
-            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        /* API信息提示 */
-        .api-info {
-            margin-top: 20px;
-            padding: 15px;
-            background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
-            border-radius: 12px;
-            border-left: 4px solid #F59E0B;
-            font-size: 0.9rem;
-            color: #92400e;
-            display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            height: 100%;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+            color: #555;
         }
         
-        .api-info::before {
-            content: "💡";
-            font-size: 1.2rem;
+        .chat-placeholder h3 {
+            color: #10B981;
+            margin-bottom: 15px;
+        }
+        
+        .chat-placeholder p {
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+        
+        .chat-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #10B981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 本地互动示例（保留趣味性） */
+        .local-demo {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .local-demo h4 {
+            color: #4F46E5;
+            margin-bottom: 15px;
+        }
+        
+        .local-demo button {
+            background-color: #4F46E5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        .local-demo button:hover {
+            background-color: #4338ca;
+        }
+        
+        .answer {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e0f2fe;
+            border-radius: 5px;
         }
         
         /* 页脚样式 */
@@ -404,6 +372,10 @@
             
             #familyTree {
                 height: 280px;
+            }
+            
+            .coze-chat-container {
+                min-height: 350px;
             }
         }
     </style>
@@ -477,25 +449,17 @@
 
             <section class="ai-panel">
                 <h2>🤖 对话AI导师</h2>
-                <p>我是你的专属AI生物老师<strong>“基因博士”</strong>。关于遗传病的任何疑问，点击下方按钮即可与我进行完整对话：</p>
+                <p>我是你的专属AI生物老师<strong>"基因博士"</strong>，可以直接与我对话学习遗传学知识：</p>
                 
-                <!-- 核心：跳转按钮与说明 -->
-                <div class="chat-redirect-box">
-                    <a href="https://www.coze.cn/s/3Voq322bENk/" 
-                    target="_blank" 
-                    class="coze-chat-button"
-                    onclick="trackAIClick()">
-                        🧬 点击这里，开启AI答疑 →
-                    </a>
-                    <p class="redirect-tip">（将在新标签页打开“遗传病小导师”专属对话界面）</p>
-                    <div class="feature-list">
-                        <p><strong>💡 功能完整，您可以：</strong></p>
-                        <ul>
-                            <li>向“基因博士”自由提问</li>
-                            <li>查看完整的对话历史</li>
-                            <li>体验流畅的AI交互</li>
-                        </ul>
+                <!-- Coze聊天容器 -->
+                <div class="coze-chat-container">
+                    <div class="chat-placeholder" id="chatPlaceholder">
+                        <div class="chat-spinner"></div>
+                        <h3>正在加载AI导师...</h3>
+                        <p>请稍候，AI导师"基因博士"即将为您服务</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px; color: #666;">你可以咨询关于遗传病、基因型、遗传规律等问题</p>
                     </div>
+                    <!-- Coze聊天界面将通过iframe加载 -->
                 </div>
 
                 <!-- 本地互动示例（保留趣味性） -->
@@ -504,116 +468,13 @@
                     <p><strong>问题：</strong>如果父母都是携带者 (Aa)，他们生下健康孩子 (AA) 的概率是多少？</p>
                     <div class="answer-area">
                         <button onclick="showAnswer(this)">点击查看答案与解析</button>
-                        <p class="answer" style="display: none; margin-top: 10px; padding: 10px; background: #e0f2fe; border-radius: 5px;">
+                        <p class="answer" style="display: none;">
                             <strong>答案：25%</strong><br>
                             <strong>解析：</strong>根据孟德尔遗传规律，Aa x Aa 的后代基因型比例为：AA(25%)，Aa(50%)，aa(25%)。其中，AA 基因型表现为健康且非携带者。
                         </p>
                     </div>
                 </div>
             </section>
-
-            <script>
-                // 简单的本地互动函数
-                function showAnswer(buttonElement) {
-                    const answerEl = buttonElement.nextElementSibling;
-                    answerEl.style.display = answerEl.style.display === 'block' ? 'none' : 'block';
-                    buttonElement.textContent = answerEl.style.display === 'block' ? '收起解析' : '点击查看答案与解析';
-                }
-                
-                // 可选的点击统计（不影响功能）
-                function trackAIClick() {
-                    console.log('用户点击了AI对话按钮，前往Coze商店页。');
-                    // 这里可以添加简单的访问统计，例如：
-                    // if (typeof gtag !== 'undefined') gtag('event', 'click_ai_button');
-                }
-            </script>
-
-            <style>
-                /* 为跳转区域添加新样式 */
-                .chat-redirect-box {
-                    text-align: center;
-                    margin: 30px 0;
-                    padding: 30px;
-                    background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
-                    border-radius: 16px;
-                    border: 2px solid #bae6fd;
-                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-                }
-                
-                .coze-chat-button {
-                    display: inline-block;
-                    background: linear-gradient(135deg, #10B981 0%, #0da271 100%);
-                    color: white;
-                    padding: 18px 40px;
-                    font-size: 1.2rem;
-                    border-radius: 50px;
-                    text-decoration: none;
-                    font-weight: bold;
-                    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-                    transition: all 0.3s ease;
-                    margin-bottom: 15px;
-                }
-                
-                .coze-chat-button:hover {
-                    transform: translateY(-3px);
-                    box-shadow: 0 12px 25px rgba(16, 185, 129, 0.4);
-                    background: linear-gradient(135deg, #0da271 0%, #0a8f62 100%);
-                }
-                
-                .redirect-tip {
-                    color: #666;
-                    font-size: 0.95rem;
-                    margin-bottom: 20px;
-                }
-                
-                .feature-list {
-                    text-align: left;
-                    display: inline-block;
-                    background: white;
-                    padding: 15px 25px;
-                    border-radius: 10px;
-                    border-left: 4px solid #10B981;
-                    margin-top: 15px;
-                }
-                
-                .feature-list ul {
-                    margin-left: 20px;
-                    margin-top: 8px;
-                    color: #555;
-                }
-                
-                .feature-list li {
-                    margin-bottom: 5px;
-                }
-                
-                .local-demo {
-                    margin-top: 30px;
-                    padding: 20px;
-                    background-color: #f8fafc;
-                    border-radius: 12px;
-                    border: 1px solid #e2e8f0;
-                }
-                
-                .local-demo h4 {
-                    color: #4F46E5;
-                    margin-bottom: 15px;
-                }
-                
-                .local-demo button {
-                    background-color: #4F46E5;
-                    color: white;
-                    padding: 10px 20px;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-weight: bold;
-                    transition: background-color 0.2s;
-                }
-                
-                .local-demo button:hover {
-                    background-color: #4338ca;
-                }
-            </style>
         </div>
 
         <footer>
@@ -623,14 +484,6 @@
     </div>
 
     <script>
-    // ========== API配置区：必须修改！==========
-    // 请替换以下值为你自己的Coze API配置
-    const API_KEY = 'pat_Y8l3wUXFysiTJjMejTDaXibPhdCXO9MWrqwFmavr6jnBtAIb1icHp8RqhWnii5Rh'; // 替换：你的Coze个人访问令牌
-    const BOT_ID = '7599549366093430836'; // 你的Bot ID
-    const CONVERSATION_ID = 'genetics_demo_conversation'; // 自定义会话ID
-    const USER_ID = 'demo_student_001'; // 自定义用户ID
-    // =========================================
-
     // ========== 交互式遗传图谱代码 ==========
     document.addEventListener('DOMContentLoaded', function() {
         const chartDom = document.getElementById('familyTree');
@@ -783,153 +636,72 @@
             myChart.resize();
         });
         
-        // 8. 初始化API聊天功能
-        initChat();
+        // 8. 初始化Coze聊天机器人
+        initCozeChat();
     });
 
-    // ========== API聊天功能代码 ==========
-    function initChat() {
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
-        
-        // 按Enter键发送消息
-        userInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        });
-        
-        // 初始焦点在输入框
-        userInput.focus();
-    }
-    
-    // 添加消息到聊天容器
-    function addMessage(content, isUser = false) {
-        const container = document.getElementById('chat-container');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = isUser ? 'message user-message' : 'message bot-message';
-        messageDiv.innerHTML = `<strong>${isUser ? '你：' : '基因博士：'}</strong> ${content}`;
-        container.appendChild(messageDiv);
-        container.scrollTop = container.scrollHeight; // 滚动到底部
-    }
-    
-    // 发送消息到Coze API
-    async function sendMessage() {
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
-        const userText = userInput.value.trim();
-        
-        if (!userText) {
-            userInput.focus();
-            return;
-        }
-        
-        // 1. 显示用户消息
-        addMessage(userText, true);
-        userInput.value = '';
-        userInput.disabled = true;
-        sendButton.disabled = true;
-        sendButton.textContent = '发送中...';
-        
-        // 2. 显示"思考中"提示
-        const thinkingId = 'thinking-' + Date.now();
-        const container = document.getElementById('chat-container');
-        const thinkingDiv = document.createElement('div');
-        thinkingDiv.id = thinkingId;
-        thinkingDiv.className = 'message bot-message';
-        thinkingDiv.innerHTML = '<strong>基因博士：</strong> <em style="color: #6b7280;">正在思考...</em>';
-        container.appendChild(thinkingDiv);
-        container.scrollTop = container.scrollHeight;
+    // ========== Coze聊天机器人嵌入代码 ==========
+    function initCozeChat() {
+        // 注意：请将下面的 pat_******** 替换为您的实际访问令牌
+        const BOT_ID = '7599549366093430836';
+        const TOKEN = 'pat_jyaGfOAQIdLZ4g1A5bNTKUckEWQhtbAYciUjFS9dLPy1z2k6HupE5m7gqyTagJlo'; // 请替换为您的实际token
         
         try {
-            // 3. 准备API请求
-            const response = await fetch('https://api.coze.cn/v1/chat', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${API_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    bot_id: BOT_ID,
-                    conversation_id: CONVERSATION_ID,
-                    user_id: USER_ID,
-                    query: userText,
-                    auto_save_history: true,
-                    stream: false
-                })
-            });
+            // 创建一个iframe来嵌入Coze聊天
+            const container = document.querySelector('.coze-chat-container');
+            const placeholder = document.getElementById('chatPlaceholder');
             
-            // 4. 处理响应
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API请求失败 (${response.status}): ${errorText}`);
-            }
+            // 创建iframe
+            const iframe = document.createElement('iframe');
+            iframe.id = 'coze-chat-iframe';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
             
-            const data = await response.json();
-            const answer = data.messages?.[0]?.content || '抱歉，我没有理解这个问题。请换一种方式提问。';
+            // 构建Coze聊天URL
+            const chatUrl = `https://www.coze.cn/embed/${BOT_ID}`;
             
-            // 5. 移除"思考中"，显示AI回复
-            document.getElementById(thinkingId).remove();
-            addMessage(answer);
+            // 设置iframe的src
+            iframe.src = chatUrl;
+            
+            // 添加iframe到容器
+            container.appendChild(iframe);
+            
+            // 当iframe加载完成后隐藏占位符
+            iframe.onload = function() {
+                placeholder.style.display = 'none';
+                console.log('Coze聊天机器人已加载');
+            };
+            
+            iframe.onerror = function(error) {
+                console.error('Coze聊天机器人加载失败:', error);
+                placeholder.innerHTML = `
+                    <h3 style="color: #EF4444;">加载失败</h3>
+                    <p>AI导师暂时无法连接，请检查网络或刷新页面重试</p>
+                    <p style="font-size: 0.85rem; color: #666;">请确保token已正确配置</p>
+                    <button onclick="location.reload()" style="margin-top: 15px; padding: 8px 16px; background: #4F46E5; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        重新加载
+                    </button>
+                `;
+            };
             
         } catch (error) {
-            console.error('调用Coze API出错:', error);
-            document.getElementById(thinkingId).remove();
-            
-            // 显示友好的错误信息
-            let errorMessage = '抱歉，暂时无法连接到AI服务。请稍后再试。';
-            if (error.message.includes('401')) {
-                errorMessage = 'API密钥错误或已过期，请检查配置。';
-            } else if (error.message.includes('404')) {
-                errorMessage = '未找到智能体，请检查Bot ID配置。';
-            } else if (error.message.includes('network') || error.message.includes('Failed to fetch')) {
-                errorMessage = '网络连接失败，请检查网络设置后重试。';
-            } else if (error.message.includes('429')) {
-                errorMessage = '请求过于频繁，请稍后重试。';
-            }
-            
-            addMessage(`<span style="color: #dc2626;">${errorMessage}</span>`);
-        } finally {
-            // 6. 恢复输入框和按钮状态
-            userInput.disabled = false;
-            sendButton.disabled = false;
-            sendButton.textContent = '发送';
-            userInput.focus();
+            console.error('初始化Coze聊天机器人时出错:', error);
+            const placeholder = document.getElementById('chatPlaceholder');
+            placeholder.innerHTML = `
+                <h3 style="color: #EF4444;">初始化错误</h3>
+                <p>无法加载AI导师，请检查配置或刷新页面</p>
+                <p style="font-size: 0.85rem; color: #666;">错误信息: ${error.message}</p>
+            `;
         }
     }
     
-    // 页面加载完成后执行的初始化
-    window.addEventListener('DOMContentLoaded', function() {
-        console.log('AI遗传病微课演示页面加载完成');
-        console.log('配置信息:', { BOT_ID, CONVERSATION_ID, USER_ID });
-        
-        // 添加一个示例问题按钮（可选功能）
-        const chatContainer = document.getElementById('chat-container');
-        const exampleBtn = document.createElement('button');
-        exampleBtn.textContent = '试试问："什么是携带者？"';
-        exampleBtn.style.cssText = `
-            align-self: center;
-            margin-top: 10px;
-            padding: 8px 16px;
-            background: #f3f4f6;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            color: #4F46E5;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        `;
-        exampleBtn.onmouseover = () => exampleBtn.style.background = '#e5e7eb';
-        exampleBtn.onmouseout = () => exampleBtn.style.background = '#f3f4f6';
-        exampleBtn.onclick = () => {
-            document.getElementById('user-input').value = '什么是携带者？';
-            sendMessage();
-        };
-        
-        // 可以将示例按钮添加到页面，这里暂时注释掉
-        // chatContainer.parentNode.insertBefore(exampleBtn, chatContainer.nextSibling);
-    });
+    // 简单的本地互动函数
+    function showAnswer(buttonElement) {
+        const answerEl = buttonElement.nextElementSibling;
+        answerEl.style.display = answerEl.style.display === 'block' ? 'none' : 'block';
+        buttonElement.textContent = answerEl.style.display === 'block' ? '收起解析' : '点击查看答案与解析';
+    }
     </script>
 </body>
 </html>
